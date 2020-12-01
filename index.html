@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/deploma.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <title>LBK团队作品</title>
+</head>
+<body>
+<div  class="deploma-box" id="app">
+    <div class="bg-box">
+        <img src="./images/bg.png" alt="" srcset="">
+    </div>
+    <div class="title">
+        <img src="./images/titleIcon.png" alt="" srcset="">
+    </div>
+    <div class="container">
+        <div class="border-box">
+            <img src="./images/border.png" alt="" srcset="">
+        </div>
+        <div class="content">
+            <div class="p-box">
+                <label for="">Title </label>
+                <p>{{claim.title}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">Price:</label>
+                <p>{{claim.price}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">Name:</label>
+                <p>{{claim.receiver_name}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">Slogan:</label>
+                <p>{{claim.receiver_slogan}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">Credential_Id:</label>
+                <p>{{claim.credential_id}}</p>
+            </div>
+
+            <div class="p-box" style="justify-content: center;color: #00358E;">
+                >>>Other Infomation<<<
+            </div>
+
+            <div class="p-box">
+                <label for="">发行者:</label>
+                <p>{{issuer}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">发行时间:</label>
+                <p>{{dateFormat('YYYY-mm-dd HH:MM',issuanceDate)}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">截止时间:</label>
+                <p>{{dateFormat('YYYY-mm-dd HH:MM',expirationDate)}}</p>
+            </div>
+
+            <div class="p-box" style="justify-content: center;color: #00358E;">
+                signature 0
+            </div>
+
+            <div class="p-box">
+                <label for="">Type:</label>
+                <p>{{proof.type}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">Created:</label>
+                <p>{{proof.created}}</p>
+            </div>
+
+            <div class="p-box">
+                <label for="">Creator:</label>
+                <p>{{proof.creator}}</p>
+            </div>
+
+            <div class="p-box" >
+                <label for="" >SignatureValue:</label>
+                <p>{{proof.signature}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const vue = new Vue({
+        el:'#app',
+        data:{
+            claim:{},
+            cptId:'',
+            expirationDate:'',
+            id:'',
+            issuanceDate:'',
+            issuer:'',
+            proof:{},
+            credential_evidence_tx_id:'',
+        },
+        methods:{
+            getCredential(){
+                let _this = this;
+                axios({
+                    method:'post',
+                    url:'http://59.110.170.246:6660/api/v1/get_credential',
+                    data:{
+                        credential_id:"100",
+                    },
+                    headers:{
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                }).then(res=>{
+                    _this.claim = res.data.respBody.credential.claim;
+                    _this.cptId = res.data.respBody.credential.cptId;
+                    _this.expirationDate = res.data.respBody.credential.expirationDate;
+                    _this.id = res.data.respBody.credential.id;
+                    _this.issuanceDate = res.data.respBody.credential.issuanceDate;
+                    _this.issuer = res.data.respBody.credential.issuer;
+                    _this.proof = res.data.respBody.credential.proof;
+                    _this.credential_evidence_tx_id = res.data.respBody.credential.credential_evidence_tx_id;
+                })
+            },
+            dateFormat(fmt, date) {
+                let ret="";
+                date=new Date(date);
+                const opt = {
+                    'Y+': date.getFullYear().toString(), // 年
+                    'm+': (date.getMonth() + 1).toString(), // 月
+                    'd+': date.getDate().toString(), // 日
+                    'H+': date.getHours().toString(), // 时
+                    'M+': date.getMinutes().toString(), // 分
+                    'S+': date.getSeconds().toString() // 秒
+                    // 有其他格式化字符需求可以继续添加，必须转化成字符串
+                }
+                for (let k in opt) {
+                    ret = new RegExp('(' + k + ')').exec(fmt)
+                    if (ret) {
+                        fmt = fmt.replace(
+                            ret[1],
+                            ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, '0')
+                        )
+                    }
+                }
+                return fmt
+            }
+        },
+    })
+    vue.getCredential()
+</script>
+</body>
+</html>
